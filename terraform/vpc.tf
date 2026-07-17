@@ -64,7 +64,6 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_eip" "nat" {
   count = var.create_nat_gateway ? 1 : 0
-  vpc   = true
   tags = {
     Name        = "${var.environment}-nat-eip"
     Environment = var.environment
