@@ -1,3 +1,5 @@
+# IAM Role para o EKS controlar recursos do cluster.
+# O cluster precisa dessa role para criar e gerenciar recursos AWS no EKS.
 resource "aws_iam_role" "eks_cluster_role" {
   name = "${var.environment}-eks-cluster-role"
 
@@ -73,6 +75,8 @@ resource "aws_security_group" "eks_cluster_sg" {
   }
 }
 
+# Cluster EKS principal que rodará o plano de controle.
+# O cluster é associado à VPC e ao security group específico do EKS.
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_cluster_role.arn
@@ -101,10 +105,6 @@ resource "aws_eks_node_group" "main" {
   }
 
   instance_types = [var.instance_type]
-
-  remote_access {
-    enabled = false
-  }
 
   depends_on = [aws_iam_role_policy_attachment.eks_node_AmazonEKSWorkerNodePolicy]
 }

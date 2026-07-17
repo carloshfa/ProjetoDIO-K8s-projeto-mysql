@@ -2,6 +2,26 @@
 
 Este repositório contém uma aplicação completa composta por frontend, backend PHP, banco de dados MySQL, orquestração Kubernetes e infraestrutura AWS com Terraform.
 
+## Sumário
+
+- [Visão geral do projeto](#visão-geral-do-projeto)
+- [Estrutura do repositório](#estrutura-do-repositório)
+- [Componentes principais](#componentes-principais)
+  - [Frontend](#frontend)
+  - [Backend](#backend)
+  - [Database](#database)
+  - [Kubernetes](#kubernetes)
+  - [CI/CD e segurança](#cicd-e-segurança)
+  - [Infraestrutura AWS](#infraestrutura-aws)
+- [Requisitos](#requisitos)
+- [Como executar localmente com Docker](#como-executar-localmente-com-docker)
+- [Como aplicar no Kubernetes](#como-aplicar-no-kubernetes)
+- [Como usar Terraform](#como-usar-terraform)
+- [Versionamento e branches](#versionamento-e-branches)
+- [Segurança e SAST](#segurança-e-sast)
+- [Observações importantes](#observações-importantes)
+- [Próximos passos](#próximos-passos)
+
 ## Visão geral do projeto
 
 A solução cobre:
@@ -121,14 +141,51 @@ kubectl apply -f deployment.yml
 kubectl apply -f services.yml
 ```
 
-3. Verifique os pods e serviços:
+3. Verifique o status do cluster:
 
 ```bash
-kubectl get pods
-kubectl get svc
+kubectl get pods --all-namespaces
+kubectl get svc --all-namespaces
+kubectl describe pod <nome-do-pod>
+```
+
+4. Acesse o backend pelo IP/hostname do LoadBalancer exposto:
+
+```bash
+kubectl get svc backend
 ```
 
 ## Como usar Terraform
+
+### Exemplo de shell para iniciar o Terraform
+
+```bash
+cd terraform
+terraform init
+terraform validate
+terraform plan -var='aws_region=us-east-1' -var='environment=dev'
+```
+
+### Aplicar infraestrutura
+
+```bash
+terraform apply -var='aws_region=us-east-1' -var='environment=dev'
+```
+
+### Atualizar infra depois de mudanças
+
+```bash
+terraform plan -var='aws_region=us-east-1' -var='environment=dev'
+terraform apply -var='aws_region=us-east-1' -var='environment=dev'
+```
+
+### Destruir ambiente
+
+```bash
+terraform destroy -var='aws_region=us-east-1' -var='environment=dev'
+```
+
+5. Para criar o repositório CodeCommit:
 
 O diretório `terraform/` contém a infraestrutura AWS necessária.
 

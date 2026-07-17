@@ -30,6 +30,8 @@ resource "aws_security_group" "alb" {
   }
 }
 
+# Load Balancer Application para expor o tráfego HTTP do ambiente.
+# O ALB é criado em subnets públicas e encaminha para o target group.
 resource "aws_lb" "app" {
   name               = "${var.environment}-app-lb"
   internal           = false

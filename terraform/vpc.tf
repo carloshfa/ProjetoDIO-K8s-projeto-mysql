@@ -1,3 +1,5 @@
+# VPC principal para a infraestrutura.
+# Esta VPC provê a base de rede com DNS habilitado para EKS e componentes AWS.
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -8,6 +10,7 @@ resource "aws_vpc" "main" {
   }
 }
 
+# Internet Gateway para tráfego de saída/entrada da VPC.
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
   tags = {
