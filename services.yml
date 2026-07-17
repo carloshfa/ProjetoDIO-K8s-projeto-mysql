@@ -1,3 +1,4 @@
+# Service interno para expor o MySQL apenas dentro do cluster.
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,11 +7,14 @@ spec:
   selector:
     app: mysql
   ports:
-    - protocol: TCP
+    - name: mysql
+      protocol: TCP
       port: 3306
       targetPort: 3306
   type: ClusterIP
+  sessionAffinity: None
 ---
+# Service externo para expor o backend PHP via LoadBalancer.
 apiVersion: v1
 kind: Service
 metadata:
@@ -19,7 +23,9 @@ spec:
   selector:
     app: backend
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 80
   type: LoadBalancer
+  sessionAffinity: None

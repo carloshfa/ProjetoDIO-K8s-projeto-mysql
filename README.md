@@ -192,49 +192,40 @@ O repositório inclui scripts de automação em `scripts/` para build, push e va
 
 ## Como aplicar no Kubernetes
 
-  - `TAG`: tag da imagem (default `latest`).
-  - Exemplo:
+O projeto usa dois manifests Kubernetes principais:
+
+- `deployment.yml`: Deployment do MySQL e Deployment do backend.
+  - O `mysql` container tem `resources.requests` e `resources.limits`.
+  - O `backend` container tem `resources.requests`, `resources.limits`, `readinessProbe` e `livenessProbe`.
+  - O `wait-for-mysql` initContainer aguarda a disponibilidade do banco.
+
+- `services.yml`: Service ClusterIP para MySQL e Service LoadBalancer para backend.
+  - As portas são nomeadas (`mysql`, `http`).
+  - `sessionAffinity: None` está configurado para manter o comportamento padrão de balanceamento.
+
+### Aplicar os manifests
+
+1. Substitua `YOUR_DOCKERHUB_USERNAME` em `deployment.yml` pelos seus nomes de imagem.
+2. Aplique os manifests:
 
     ```bash
-    bash scripts/build-images.sh seu-usuario-dockerhub latest
+    kubectl apply -f deployment.yml
+    kubectl apply -f services.yml
     ```
 
-- `scripts/push-images.sh <REPO_PREFIX> <TAG>`
-  - Envia as imagens para o Docker Hub.
-  - Requer `DOCKERHUB_USERNAME` ou `REPO_PREFIX`.
-  - Suporta `DOCKERHUB_PASSWORD` para login não interativo.
-  - Exemplo:
+3. Verifique o status do cluster:
 
     ```bash
-    bash scripts/push-images.sh seu-usuario-dockerhub latest
+    kubectl get pods --all-namespaces
+    kubectl get svc --all-namespaces
+    kubectl describe pod <nome-do-pod>
     ```
 
-- `scripts/build-and-push.sh <REPO_PREFIX> <TAG>`
-  - Executa `build-images.sh` e `push-images.sh` em sequência.
-  - Exemplo:
+4. Acesse o backend pelo IP/hostname do LoadBalancer exposto:
 
     ```bash
-    bash scripts/build-and-push.sh seu-usuario-dockerhub latest
+    kubectl get svc backend
     ```
-
-- `scripts/test.sh`
-  - Valida a sintaxe dos scripts shell.
-  - Verifica a existência dos Dockerfiles e dos manifests Kubernetes.
-  - Exemplo:
-
-    ```bash
-    bash scripts/test.sh
-    ```
-
-- `scripts/test.ps1`
-  - Versão PowerShell da validação de `test.sh`.
-  - Execute no Windows com PowerShell:
-
-    ```powershell
-    powershell -ExecutionPolicy Bypass -File scripts/test.ps1
-    ```
-
-## Como aplicar no Kubernetes
 
 1. Substitua `YOUR_DOCKERHUB_USERNAME` em `deployment.yml` pelos seus nomes de imagem.
 2. Aplique os manifests:

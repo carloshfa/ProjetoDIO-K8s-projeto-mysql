@@ -1,4 +1,6 @@
 <?
+# Backend PHP simples responsável por receber dados do frontend e inserir no MySQL.
+# Este arquivo atua como endpoint HTTP para o formulário de feedback.
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 

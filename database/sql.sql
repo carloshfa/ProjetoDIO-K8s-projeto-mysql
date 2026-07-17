@@ -1,3 +1,4 @@
+-- Cria a tabela de mensagens usada pelo backend PHP.
 CREATE TABLE mensagens (
     id int,
     nome varchar(50),

@@ -1,8 +1,10 @@
+# PowerShell script de validação que verifica a existência dos principais arquivos do projeto.
 $ErrorActionPreference = 'Stop'
 
 $rootDir = Split-Path -Parent $PSScriptRoot
 
 Write-Host '[1/4] Validando scripts shell...'
+# Lista scripts shell no diretório e confirma que existem.
 Get-ChildItem -Path (Join-Path $rootDir 'scripts') -Filter '*.sh' | ForEach-Object {
     if (Test-Path $_.FullName) {
         Write-Host "OK: $($_.Name)"
@@ -10,6 +12,7 @@ Get-ChildItem -Path (Join-Path $rootDir 'scripts') -Filter '*.sh' | ForEach-Obje
 }
 
 Write-Host '[2/4] Validando Dockerfiles...'
+# Verifica a presença dos Dockerfiles usados pelo backend, frontend e database.
 $dockerfiles = @(
     (Join-Path $rootDir 'backend/Dockerfile'),
     (Join-Path $rootDir 'frontend/Dockerfile'),
@@ -24,6 +27,7 @@ foreach ($file in $dockerfiles) {
 }
 
 Write-Host '[3/4] Validando manifests Kubernetes...'
+# Confirma a existência dos manifests de deployment e service.
 $manifests = @(
     (Join-Path $rootDir 'deployment.yml'),
     (Join-Path $rootDir 'services.yml')
