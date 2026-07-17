@@ -1,128 +1,204 @@
-# Kubernetes Project - App Base
+# Projeto DIO Kubernetes / MySQL
 
-Este projeto monta uma aplicação simples com frontend, backend e banco de dados MySQL, usando Docker e Kubernetes para containerização e orquestração.
+Este repositório contém uma aplicação completa composta por frontend, backend PHP, banco de dados MySQL, orquestração Kubernetes e infraestrutura AWS com Terraform.
 
-## Visão geral
+## Visão geral do projeto
 
-A aplicação é composta por:
+A solução cobre:
 
-- Frontend: interface web em HTML/CSS/JS
-- Backend: aplicação PHP que recebe os dados do formulário
-- Banco de dados: MySQL com inicialização via script SQL
+- Frontend web estático em HTML/CSS/JS
+- Backend PHP com Apache que grava mensagens no MySQL
+- Banco de dados MySQL inicializado via script SQL
+- Dockerfiles para frontend, backend e database
+- Manifests Kubernetes para backend e banco de dados
+- GitHub Actions para validação e análise de segurança
+- Terraform para provisionamento de infraestrutura AWS
 
-A estrutura do projeto é:
+## Estrutura do repositório
 
 ```text
-backend/         # aplicação PHP
-frontend/        # arquivos do frontend
-database/        # Dockerfile e script SQL do MySQL
+backend/         # backend PHP e Dockerfile
+frontend/        # frontend HTML/CSS/JS e Dockerfile
+database/        # Dockerfile do MySQL e script SQL
 scripts/         # scripts de build, push e teste
-deployment.yml   # deployments e PVC do Kubernetes
-services.yml     # serviços do Kubernetes
+terraform/       # infraestrutura AWS via Terraform
+deployment.yml   # deployment Kubernetes para MySQL e backend
+services.yml     # serviços Kubernetes para MySQL e backend
+.github/         # workflow GitHub Actions
+README.md        # documentação unificada do projeto
 ```
+
+## Componentes principais
+
+### Frontend
+- `frontend/index.html`
+- `frontend/js.js`
+- `frontend/css.css`
+
+O formulário envia os dados via AJAX ao backend. Atualmente o frontend é considerado fora do cluster e deve apontar para o backend exposto.
+
+### Backend
+- `backend/index.php`
+- `backend/conexao.php`
+- `backend/Dockerfile`
+
+O backend recebe `POST` com `nome`, `email` e `comentario` e insere na tabela `mensagens` do MySQL.
+
+### Database
+- `database/Dockerfile`
+- `database/sql.sql`
+
+O MySQL 5.7 é inicializado com uma tabela simples `mensagens`.
+
+### Kubernetes
+- `deployment.yml`
+- `services.yml`
+
+O Kubernetes provisiona:
+- PersistentVolume e PersistentVolumeClaim para MySQL
+- Deployment MySQL
+- Deployment Backend com initContainer que aguarda MySQL
+- Service ClusterIP para MySQL
+- Service LoadBalancer para Backend
+
+### CI/CD e segurança
+- `.github/workflows/ci.yml`
+- `scripts/test.sh`
+- `scripts/build-images.sh`
+- `scripts/push-images.sh`
+- `scripts/build-and-push.sh`
+
+O workflow é acionado manualmente (`workflow_dispatch`) e inclui validação de scripts e manifests. Também adicionamos o Checkov para análise de segurança como etapa informativa, sem bloquear o deploy.
+
+### Infraestrutura AWS
+- `terraform/`
+
+A infraestrutura Terraform provisiona recursos AWS agnósticos para o projeto:
+- VPC com subnets públicas e privadas
+- Internet Gateway e NAT Gateway
+- Cluster EKS e node group
+- Load Balancer Application
+- Instância EC2 auxiliar para suporte
+- Repositório CodeCommit opcional
 
 ## Requisitos
 
-Antes de usar este projeto, certifique-se de ter instalado:
+Antes de executar o projeto, instale:
 
 - Docker
-- Kubernetes (ou um cluster local como Docker Desktop com Kubernetes habilitado)
+- Kubernetes (Docker Desktop com Kubernetes ou outro cluster)
 - Git
+- Terraform 1.5+
+- AWS CLI configurado para o ambiente AWS
 
-## Estrutura de containers
+## Como executar localmente com Docker
 
-### Backend
-O backend utiliza a imagem oficial do PHP com Apache e expõe a porta 80.
-
-### Frontend
-O frontend utiliza Nginx e expõe a porta 80.
-
-### Banco de dados
-O banco usa a imagem oficial do MySQL 5.7 com um script SQL para inicializar o schema.
-
-## Como construir as imagens Docker
-
-Na raiz do projeto, execute:
+1. Construir as imagens:
 
 ```bash
 bash scripts/build-images.sh seu-usuario-dockerhub latest
 ```
 
-Esse comando cria as imagens:
-
-- seu-usuario-dockerhub/backend:latest
-- seu-usuario-dockerhub/frontend:latest
-- seu-usuario-dockerhub/database:latest
-
-## Como publicar no Docker Hub
+2. (Opcional) Fazer push:
 
 ```bash
 bash scripts/push-images.sh seu-usuario-dockerhub latest
 ```
 
-Antes de publicar, faça login no Docker Hub:
-
-```bash
-docker login
-```
-
-## Fluxo completo de build e push
-
-Para executar build + push em uma única etapa:
+3. Para build + push em uma etapa:
 
 ```bash
 bash scripts/build-and-push.sh seu-usuario-dockerhub latest
 ```
 
-## Testes automáticos
+## Como aplicar no Kubernetes
 
-O projeto inclui uma etapa de validação simples para checar scripts, Dockerfiles e manifests do Kubernetes.
-
-Execute:
-
-```bash
-bash scripts/test.sh
-```
-
-Ou, no PowerShell:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\test.ps1
-```
-
-## Kubernetes
-
-Os arquivos de configuração do Kubernetes são:
-
-- deployment.yml
-- services.yml
-
-Eles definem:
-
-- um PersistentVolume local para o banco MySQL, usando hostPath em /tmp/mysql-data
-- um PersistentVolumeClaim para o banco MySQL
-- um deployment para o MySQL
-- um deployment para o backend
-- serviços para expor o MySQL e o backend
-
-### Aplicar no cluster
+1. Substitua `YOUR_DOCKERHUB_USERNAME` em `deployment.yml` pelos seus nomes de imagem.
+2. Aplique os manifests:
 
 ```bash
 kubectl apply -f deployment.yml
 kubectl apply -f services.yml
 ```
 
+3. Verifique os pods e serviços:
+
+```bash
+kubectl get pods
+kubectl get svc
+```
+
+## Como usar Terraform
+
+O diretório `terraform/` contém a infraestrutura AWS necessária.
+
+1. Entre no diretório Terraform:
+
+```bash
+cd terraform
+```
+
+2. Inicialize o Terraform:
+
+```bash
+terraform init
+```
+
+3. Planeje a infraestrutura:
+
+```bash
+terraform plan -var='aws_region=us-east-1' -var='environment=dev'
+```
+
+4. Aplique o ambiente:
+
+```bash
+terraform apply -var='aws_region=us-east-1' -var='environment=dev'
+```
+
+5. Para criar o repositório CodeCommit:
+
+```bash
+terraform apply -var='enable_codecommit=true' -var='codecommit_repo_name=projeto-dio-repo'
+```
+
+## Versionamento e branches
+
+Recomenda-se usar um fluxo de branches para desenvolvimento e deploy:
+
+- `main` para produção ou código estável
+- `terraform` para mudanças de infraestrutura
+- `feature/*` para novas funcionalidades e correções
+- `security/*` para ajustes de segurança e análise
+
+Sempre mantenha o `README.md` atualizado com as mudanças de arquitetura, pipeline e infra.
+
+## Segurança e SAST
+
+Atualmente o projeto inclui:
+
+- `Checkov` para análise de IaC no workflow GitHub Actions
+
+Futuras adições recomendadas:
+
+- `Semgrep` para PHP/JS
+- `hadolint` para Dockerfile
+- `OWASP ZAP` ou `Nuclei` para DAST
+- `Gitleaks` para busca de segredos
+
 ## Observações importantes
 
-- Substitua `YOUR_DOCKERHUB_USERNAME` nos manifests por seu nome de usuário real do Docker Hub.
-- O backend espera acessar o banco pelo nome `mysql` dentro do cluster.
-- O MySQL usa as credenciais configuradas no manifesto para criar o banco `meubanco`.
+- O frontend foi projetado para funcionar fora do cluster.
+- O backend espera o MySQL acessível via `mysql` no cluster Kubernetes.
+- As credenciais do MySQL padrão usadas no manifesto são `root / Senha123` e banco `meubanco`.
+- Ajuste ConfigMaps, Secrets e Ingress conforme o ambiente de produção.
 
 ## Próximos passos
 
-Você pode evoluir este projeto adicionando:
+Você pode evoluir o projeto com:
 
-- frontend no Kubernetes
-- ConfigMaps e Secrets para credenciais
-- ingress para expor a aplicação externamente
-- pipeline CI/CD com GitHub Actions para build e deploy automáticos
+- frontend implantado dentro do cluster Kubernetes
+- Ingress e TLS
+- Secrets gerenciados com AWS Secrets Manager ou Kubernetes Secrets
+- backend com autenticação/validação e proteção contra injeção SQL
+- pipeline CI/CD completo com deploy automático
