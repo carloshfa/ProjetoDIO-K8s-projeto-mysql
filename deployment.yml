@@ -32,8 +32,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
+  annotations:
+    kubernetes.io/change-cause: "Initial deployment: mysql v1.0.0"
 spec:
   replicas: 1
+  # Mantém um histórico de revisões para permitir `kubectl rollout history`.
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
   selector:
     matchLabels:
       app: mysql
@@ -41,6 +50,7 @@ spec:
     metadata:
       labels:
         app: mysql
+        app.kubernetes.io/version: "v1.0.0"
     spec:
       containers:
         - name: mysql
@@ -94,8 +104,16 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
+  annotations:
+    kubernetes.io/change-cause: "Initial deployment: backend v1.0.0"
 spec:
   replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
   selector:
     matchLabels:
       app: backend
@@ -103,6 +121,7 @@ spec:
     metadata:
       labels:
         app: backend
+        app.kubernetes.io/version: "v1.0.0"
     spec:
       initContainers:
         - name: wait-for-mysql

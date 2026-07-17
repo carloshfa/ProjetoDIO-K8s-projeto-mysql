@@ -227,6 +227,11 @@ O projeto usa dois manifests Kubernetes principais:
     kubectl get svc backend
     ```
 
+Nota sobre o endpoint do backend:
+
+- Dentro do cluster Kubernetes, o frontend pode chamar o backend usando `http://backend/index.php` (o Service `backend` é resolvível via DNS do cluster).
+- Se você servir o frontend fora do cluster ou usar outro domínio/IP, atualize a variável `requestUrl` em `frontend/js.js` para apontar para `http://<SEU_BACKEND_HOST>/index.php`.
+
 1. Substitua `YOUR_DOCKERHUB_USERNAME` em `deployment.yml` pelos seus nomes de imagem.
 2. Aplique os manifests:
 
