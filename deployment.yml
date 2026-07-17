@@ -54,6 +54,13 @@ spec:
               value: Senha123
           ports:
             - containerPort: 3306
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
           volumeMounts:
             - name: mysql-storage
               mountPath: /var/lib/mysql
@@ -79,6 +86,13 @@ spec:
       initContainers:
         - name: wait-for-mysql
           image: busybox:1.36
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+            limits:
+              cpu: "50m"
+              memory: "64Mi"
           command:
             - sh
             - -c
@@ -104,3 +118,10 @@ spec:
               value: Senha123
           ports:
             - containerPort: 80
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "400m"
+              memory: "512Mi"
