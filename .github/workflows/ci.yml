@@ -1,10 +1,7 @@
-name: CI
+name: CI/CD
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -14,7 +11,7 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Validar estrutura do projeto
+      - name: Validar scripts e manifests
         run: |
           chmod +x scripts/*.sh
           bash scripts/test.sh
