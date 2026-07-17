@@ -15,3 +15,9 @@ jobs:
         run: |
           chmod +x scripts/*.sh
           bash scripts/test.sh
+
+      - name: Executar Checkov (análise de segurança)
+        uses: bridgecrewio/checkov-action@v9
+        with:
+          directory: .
+        continue-on-error: true
