@@ -56,15 +56,28 @@ spec:
         - name: mysql
           image: YOUR_DOCKERHUB_USERNAME/database:latest
           imagePullPolicy: IfNotPresent
+          # Variáveis sensíveis agora fornecidas via Kubernetes Secret `mysql-credentials`.
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: Senha123
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_DATABASE
-              value: meubanco
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: MYSQL_DATABASE
             - name: MYSQL_USER
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: MYSQL_USER
             - name: MYSQL_PASSWORD
-              value: Senha123
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: MYSQL_PASSWORD
           ports:
             - containerPort: 3306
           # Recursos mínimos e máximos solicitados pelo container MySQL.
@@ -152,11 +165,20 @@ spec:
             - name: DB_PORT
               value: "3306"
             - name: DB_DATABASE
-              value: meubanco
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: DB_DATABASE
             - name: DB_USERNAME
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: DB_USERNAME
             - name: DB_PASSWORD
-              value: Senha123
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: DB_PASSWORD
           ports:
             - containerPort: 80
           # Recursos solicitados e limites definidos para o backend.

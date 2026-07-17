@@ -213,6 +213,32 @@ O projeto usa dois manifests Kubernetes principais:
     kubectl apply -f services.yml
     ```
 
+### Segredos (Secrets)
+
+As credenciais sensíveis (senhas, nomes de usuário e variáveis de configuração) foram extraídas dos manifests e colocadas em `kubernetes-secrets.yml`.
+
+- Para aplicar o Secret inicial (valor de exemplo `Senha123`), execute:
+
+```bash
+kubectl apply -f kubernetes-secrets.yml
+```
+
+- Em produção, prefira criar secrets a partir da linha de comando ou de um cofre (ex: AWS Secrets Manager, HashiCorp Vault). Exemplo CLI:
+
+```bash
+kubectl create secret generic mysql-credentials \
+  --from-literal=MYSQL_ROOT_PASSWORD='SENHA_SEGURA' \
+  --from-literal=MYSQL_DATABASE='meubanco' \
+  --from-literal=MYSQL_USER='root' \
+  --from-literal=MYSQL_PASSWORD='SENHA_SEGURA' \
+  --from-literal=DB_USERNAME='root' \
+  --from-literal=DB_PASSWORD='SENHA_SEGURA' \
+  --from-literal=DB_DATABASE='meubanco'
+```
+
+- Depois de criar o Secret, aplique/atualize os deployments. Os `Deployment` do projeto já referenciam o Secret `mysql-credentials`.
+
+
 3. Verifique o status do cluster:
 
     ```bash
