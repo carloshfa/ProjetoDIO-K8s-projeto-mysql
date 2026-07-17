@@ -131,6 +131,109 @@ bash scripts/push-images.sh seu-usuario-dockerhub latest
 bash scripts/build-and-push.sh seu-usuario-dockerhub latest
 ```
 
+## Uso dos scripts
+
+O repositório inclui scripts de automação em `scripts/` para build, push e validação.
+
+- `scripts/build-images.sh <REPO_PREFIX> [TAG]`
+  - Constrói imagens Docker para `backend`, `frontend` e `database`.
+  - `REPO_PREFIX`: prefixo do repositório Docker (ex: `seu-usuario-dockerhub`).
+  - `TAG`: tag da imagem (default `latest`).
+  - Exemplo:
+
+    ```bash
+    bash scripts/build-images.sh seu-usuario-dockerhub latest
+    ```
+
+- `scripts/push-images.sh <REPO_PREFIX> [TAG]`
+  - Faz login no Docker Hub e envia as imagens.
+  - `REPO_PREFIX`: prefixo usado no build.
+  - `TAG`: tag da imagem (default `latest`).
+  - Requer `DOCKERHUB_USERNAME` se não passar `REPO_PREFIX`.
+  - Para login não interativo, defina `DOCKERHUB_PASSWORD`.
+  - Exemplo:
+
+    ```bash
+    export DOCKERHUB_USERNAME=seu-usuario-dockerhub
+    export DOCKERHUB_PASSWORD=sua-senha
+    bash scripts/push-images.sh seu-usuario-dockerhub latest
+    ```
+
+- `scripts/build-and-push.sh <REPO_PREFIX> [TAG]`
+  - Executa `build-images.sh` e `push-images.sh` em sequência.
+  - Exemplo:
+
+    ```bash
+    bash scripts/build-and-push.sh seu-usuario-dockerhub latest
+    ```
+
+- `scripts/test.sh`
+  - Valida a sintaxe dos scripts shell.
+  - Verifica se os Dockerfiles e os manifests Kubernetes existem.
+  - Exemplo:
+
+    ```bash
+    bash scripts/test.sh
+    ```
+
+- `scripts/test.ps1`
+  - Versão PowerShell da validação de `test.sh`.
+  - Execute no Windows com PowerShell:
+
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File scripts/test.ps1
+    ```
+
+### Observações importantes
+
+- Ajuste `REPO_PREFIX` para usar seu usuário ou organização Docker.
+- Se usar outra registry, atualize os nomes de imagem em `deployment.yml`.
+- Use Git Bash ou PowerShell no Windows para executar os scripts shell.
+
+## Como aplicar no Kubernetes
+
+  - `TAG`: tag da imagem (default `latest`).
+  - Exemplo:
+
+    ```bash
+    bash scripts/build-images.sh seu-usuario-dockerhub latest
+    ```
+
+- `scripts/push-images.sh <REPO_PREFIX> <TAG>`
+  - Envia as imagens para o Docker Hub.
+  - Requer `DOCKERHUB_USERNAME` ou `REPO_PREFIX`.
+  - Suporta `DOCKERHUB_PASSWORD` para login não interativo.
+  - Exemplo:
+
+    ```bash
+    bash scripts/push-images.sh seu-usuario-dockerhub latest
+    ```
+
+- `scripts/build-and-push.sh <REPO_PREFIX> <TAG>`
+  - Executa `build-images.sh` e `push-images.sh` em sequência.
+  - Exemplo:
+
+    ```bash
+    bash scripts/build-and-push.sh seu-usuario-dockerhub latest
+    ```
+
+- `scripts/test.sh`
+  - Valida a sintaxe dos scripts shell.
+  - Verifica a existência dos Dockerfiles e dos manifests Kubernetes.
+  - Exemplo:
+
+    ```bash
+    bash scripts/test.sh
+    ```
+
+- `scripts/test.ps1`
+  - Versão PowerShell da validação de `test.sh`.
+  - Execute no Windows com PowerShell:
+
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File scripts/test.ps1
+    ```
+
 ## Como aplicar no Kubernetes
 
 1. Substitua `YOUR_DOCKERHUB_USERNAME` em `deployment.yml` pelos seus nomes de imagem.
